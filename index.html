@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan Inventaris</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>">
+</head>
+<body>
+    <header>
+        <h1 id="main-title">Aplikasi Inventaris</h1>
+        <div class="header-controls">
+            <label class="theme-switch">
+                <input type="checkbox" id="theme-toggle">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <main>
+        <div class="report-header-container no-print">
+            <h2>Detail Laporan</h2>
+            <div class="report-header-grid">
+                <div>
+                    <label for="report-title">Judul Laporan</label>
+                    <input type="text" id="report-title" value="Laporan Inventaris Barang">
+                </div>
+                <div>
+                    <label for="inventory-location">Lokasi Inventarisasi</label>
+                    <input type="text" id="inventory-location" placeholder="Gudang Utama, Lab Komputer, dll.">
+                </div>
+                <div>
+                    <label for="inventory-date">Tanggal Pelaksanaan</label>
+                    <input type="date" id="inventory-date">
+                </div>
+                <div>
+                    <label for="report-date">Tanggal Laporan</label>
+                    <input type="date" id="report-date">
+                </div>
+                <div>
+                    <label for="item-code-prefix">Prefix Kode Barang</label>
+                    <input type="text" id="item-code-prefix" value="BRG" placeholder="e.g., LAB, INV">
+                </div>
+            </div>
+            <div class="signature-controls no-print">
+                <button id="edit-signatures-btn">✍️ Edit Penanda Tangan</button>
+                <div class="form-check">
+                    <input type="checkbox" id="toggle-signature-print" checked>
+                    <label for="toggle-signature-print">Sertakan Tanda Tangan saat Cetak</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <input type="search" id="search-input" placeholder="🔎 Cari barang...">
+            <button id="add-item-btn">✨ Tambah Barang</button>
+            <div class="file-buttons">
+                <button id="save-file-btn">💾 Simpan</button>
+                <button id="load-file-btn">📁 Muat</button>
+                <input type="file" id="file-input" accept=".json,.txt" style="display: none;">
+            </div>
+            <button id="print-pdf-btn">📑 Cetak Laporan</button>
+            <button id="reset-data-btn" class="danger">♻️ Reset</button>
+        </div>
+
+        <div id="print-content-wrapper">
+            <div class="table-container">
+                <!-- Header yang akan tercetak -->
+                <div class="print-header">
+                    <h2 id="print-report-title"></h2>
+                    <div class="print-header-details">
+                        <p><strong>Lokasi:</strong> <span id="print-location"></span></p>
+                        <p><strong>Tanggal Pelaksanaan:</strong> <span id="print-inv-date"></span></p>
+                        <p><strong>Tanggal Laporan:</strong> <span id="print-rep-date"></span></p>
+                    </div>
+                </div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>No.</th>
+                            <th>Kode Barang</th>
+                            <th>Nama Barang</th>
+                            <th>Spesifikasi</th>
+                            <th>Jumlah</th>
+                            <th>Satuan</th>
+                            <th>Kondisi</th>
+                            <th>Keterangan</th>
+                            <th class="no-print">Cetak?</th>
+                            <th class="no-print">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventory-table-body">
+                        <!-- Data inventaris akan dimuat di sini -->
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="3" style="text-align: right; font-weight: bold;">Total Jumlah Barang</td>
+                            <td id="total-quantity" style="font-weight: bold;">0</td>
+                            <td colspan="4"></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <div id="unprinted-summary-container" class="no-print">
+                <!-- Summary of unprinted items will be rendered here -->
+            </div>
+
+            <!-- Bagian Tanda Tangan untuk Tampilan & Cetak -->
+            <div class="signature-section">
+                <div class="signature-box" id="display-responsible">
+                    <div class="signature-top">
+                        <p class="signature-role">Penanggung Jawab,</p>
+                        <p class="signature-title" id="display-responsible-title"></p>
+                    </div>
+                    <div class="signature-bottom">
+                        <p class="signature-name" id="display-responsible-name"></p>
+                        <p class="signature-id" id="display-responsible-id"></p>
+                    </div>
+                </div>
+                <div class="signature-box" id="display-approver">
+                    <div class="signature-top">
+                        <p class="signature-role">Menyetujui,</p>
+                        <p class="signature-title" id="display-approver-title"></p>
+                    </div>
+                    <div class="signature-bottom">
+                        <p class="signature-name" id="display-approver-name"></p>
+                        <p class="signature-id" id="display-approver-id"></p>
+                    </div>
+                </div>
+                <div class="signature-box optional-signature" id="display-witness">
+                    <div class="signature-top">
+                        <p class="signature-role">Mengetahui,</p>
+                        <p class="signature-title" id="display-witness-title"></p>
+                    </div>
+                    <div class="signature-bottom">
+                        <p class="signature-name" id="display-witness-name"></p>
+                        <p class="signature-id" id="display-witness-id"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="app-footer" class="no-print">© 2024 Laboratorium Teknik Elektro dan Komputer</footer>
+
+    <!-- Modal untuk Tambah/Edit Barang -->
+    <div id="item-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="modal-title">Tambah Barang Baru</h2>
+            <form id="item-form">
+                <input type="hidden" id="item-id">
+                <input type="hidden" id="parent-id">
+                <label for="item-name">Nama Barang:</label>
+                <input type="text" id="item-name" required>
+                
+                <label for="item-spec">Spesifikasi:</label>
+                <input type="text" id="item-spec" placeholder="Merek, tipe, warna, dll.">
+
+                <div class="form-row">
+                    <div>
+                        <label for="item-quantity">Jumlah:</label>
+                        <input type="number" id="item-quantity" value="1" min="1" required>
+                    </div>
+                    <div>
+                        <label for="item-unit">Satuan:</label>
+                        <input type="text" id="item-unit" placeholder="Pcs, Unit, Box" required>
+                    </div>
+                </div>
+
+                <label for="item-condition">Kondisi:</label>
+                <input type="text" id="item-condition" list="conditions-list" placeholder="Baik, Rusak Ringan, dll.">
+                <datalist id="conditions-list">
+                    <option value="Baik"></option>
+                    <option value="Layak Pakai"></option>
+                    <option value="Rusak Ringan"></option>
+                    <option value="Rusak Berat"></option>
+                    <option value="Baru"></option>
+                    <option value="Lainnya"></option>
+                </datalist>
+                
+                <label for="item-description">Keterangan:</label>
+                <textarea id="item-description" rows="3"></textarea>
+
+                <button type="submit" id="save-item-btn">Simpan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal untuk Edit Penanda Tangan -->
+    <div id="signature-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <h2 id="signature-modal-title">Edit Penanda Tangan</h2>
+            <form id="signature-form">
+                <div class="signature-form-section">
+                    <h3>Penanggung Jawab</h3>
+                    <label for="responsible-title">Jabatan:</label>
+                    <input type="text" id="responsible-title" class="signature-title" placeholder="Jabatan">
+                    <label for="responsible-name">Nama:</label>
+                    <input type="text" id="responsible-name" class="signature-name" placeholder="Nama Penanggung Jawab">
+                    <label for="responsible-id">NIP/NIK/NPM:</label>
+                    <input type="text" id="responsible-id" class="signature-id" placeholder="NIP/NIK/NPM">
+                </div>
+
+                <div class="signature-form-section">
+                    <h3>Menyetujui</h3>
+                    <label for="approver-title">Jabatan:</label>
+                    <input type="text" id="approver-title" class="signature-title" placeholder="Jabatan">
+                    <label for="approver-name">Nama:</label>
+                    <input type="text" id="approver-name" class="signature-name" placeholder="Nama Pihak Menyetujui">
+                    <label for="approver-id">NIP/NIK/NPM:</label>
+                    <input type="text" id="approver-id" class="signature-id" placeholder="NIP/NIK/NPM">
+                </div>
+
+                <div class="signature-form-section">
+                    <h3>Mengetahui (Opsional)</h3>
+                    <label for="witness-title">Jabatan:</label>
+                    <input type="text" id="witness-title" class="signature-title" placeholder="Jabatan">
+                    <label for="witness-name">Nama:</label>
+                    <input type="text" id="witness-name" class="signature-name" placeholder="Nama Pihak Mengetahui">
+                    <label for="witness-id">NIP/NIK/NPM:</label>
+                    <input type="text" id="witness-id" class="signature-id" placeholder="NIP/NIK/NPM">
+                </div>
+
+                <button type="submit" id="save-signatures-btn">Simpan Penanda Tangan</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notifikasi -->
+    <div id="notification" class="notification"></div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
